@@ -1,0 +1,28 @@
+--A. Select countries that participated every year between 2012 and 2022 (all years in the dataset)
+select country
+from performances p
+group by country
+having count(distinct year) = 11;
+  
+-- B. Select names of artists who qualified for 2015 Eurovision Grand Final
+select artist_name 
+from artists a 
+where artist_id in (
+	select artist_id
+	from songartists s
+	where song_id in (
+		select song_id
+		from performances p 
+		where year =2015)
+	and song_id not in (
+		select song_id
+		from performances p2
+		where place = 'Didn''t qualify' ))
+		order by artist_name;
+
+
+-- C. Select country_code_column, value, country_code_row, and sum of votes the country received (as total_received)
+select country_code_column, value, country_code_row, sum(value) over (partition by country_code_row) as total_received
+from votes v 
+where edition_year = 2022
+order by total_received desc;
